@@ -48,7 +48,6 @@ int main(int argc, char** argv) {
             case '.': fputs("    putchar(*ptr);\n", cFile); break;
             case ',': fputs("    *ptr = getchar();\n", cFile); break;
             case '[':
-
                 fputs("    while (*ptr) {\n", cFile);
                 loopDepth++;
                 break;
