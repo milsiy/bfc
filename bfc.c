@@ -28,31 +28,30 @@ int main(int argc, char** argv) {
     // standard libraries, but dealing with inputs is a pain in the ass if we're
     // just using Assembly. Plus, who cares.
 
-    FILE* cFile = fopen(cFileName, "w");
+    FILE* cFile = fopen(cFileName, "w+");
     cFile = freopen(cFileName, "a", cFile);
-    fputs("#include <stdio.h>\nstatic unsigned char stack[30000];\nint main() "
-          "{\n    unsigned char* ptr = stack;\n",
+    fputs("#include <stdio.h>\nstatic unsigned char stack[30000];int "
+          "main(){unsigned char*ptr=stack;",
         cFile);
 
     FILE* bfFile = fopen(argv[2], "r");
     char ch = 0;
-    size_t loopDepth = 0;
+    ssize_t loopDepth = 0;
     while (ch != EOF) {
         ch = fgetc(bfFile);
-        for (size_t i = 0; i < loopDepth; i++) { fputs("    ", cFile); }
         switch (ch) {
-            case '>': fputs("    ptr++;\n", cFile); break;
-            case '<': fputs("    ptr--;\n", cFile); break;
-            case '+': fputs("    (*ptr)++;\n", cFile); break;
-            case '-': fputs("    (*ptr)--;\n", cFile); break;
-            case '.': fputs("    putchar(*ptr);\n", cFile); break;
-            case ',': fputs("    *ptr = getchar();\n", cFile); break;
+            case '>': fputs("ptr++;", cFile); break;
+            case '<': fputs("ptr--;", cFile); break;
+            case '+': fputs("(*ptr)++;", cFile); break;
+            case '-': fputs("(*ptr)--;", cFile); break;
+            case '.': fputs("putchar(*ptr);", cFile); break;
+            case ',': fputs("*ptr=getchar();", cFile); break;
             case '[':
-                fputs("    while (*ptr) {\n", cFile);
+                fputs("while(*ptr){", cFile);
                 loopDepth++;
                 break;
             case ']':
-                fputs("}\n", cFile);
+                fputs("}", cFile);
                 loopDepth--;
                 break;
         }
@@ -60,6 +59,13 @@ int main(int argc, char** argv) {
 
     fputc('}', cFile);
     fclose(cFile);
+
+    if (loopDepth != 0) {
+        puts("\e[0;31mError:\e[m The compiler found misplaced brackets. "
+             "Compilation terminated");
+        remove(cFileName);
+        return 1;
+    }
 
     pid_t runGCC = fork();
     if (runGCC == 0) {
