@@ -15,13 +15,7 @@ int main(int argc, char** argv) {
     }
 
     char* cFileName = malloc(strlen(argv[2]) + 3);
-    for (size_t i = 0; i <= strlen(argv[2]); i++) {
-        if (argv[2][i] == '.') {
-            cFileName[i] = '_';
-            continue;
-        }
-        cFileName[i] = argv[2][i];
-    }
+    strcpy(cFileName, argv[2]);
     strcat(cFileName, ".c");
 
     // NOTE: The translated C file could've been written without using the
