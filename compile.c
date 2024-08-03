@@ -67,10 +67,5 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    pid_t runGCC = fork();
-    if (runGCC == 0) {
-        execl("/usr/bin/gcc", "gcc", "-o", argv[1], cFileName, NULL);
-        exit(0);
-    }
-    remove(cFileName);
+    execl("/usr/bin/gcc", "gcc", "-o", argv[1], cFileName, NULL);
 }
