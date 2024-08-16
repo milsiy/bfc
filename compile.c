@@ -6,8 +6,9 @@
 
 int main(int argc, char** argv) {
     if (argc == 1) {
-        puts("To compile a Brainfuck file using BFC. \n[PATH TO BFC] [OUTPUT "
-             "NAME] [BRAINFUCK FILE]");
+        puts(
+            "To compile a Brainfuck file using BFC. \n[PATH TO BFC] [OUTPUT "
+            "NAME] [BRAINFUCK FILE]");
         return 1;
     } else if (argc != 3) {
         puts("\e[0;31mError:\e[m Not enough or too many arguments.");
@@ -22,32 +23,32 @@ int main(int argc, char** argv) {
     // standard libraries, but dealing with inputs is a pain in the ass if we're
     // just using Assembly. Plus, who cares.
 
-    FILE* cFile = fopen(cFileName, "w+");
-    cFile = freopen(cFileName, "a", cFile);
-    fputs("#include <stdio.h>\nstatic unsigned char stack[30000];int "
-          "main(){unsigned char*ptr=stack;",
+    FILE* cFile = fopen(cFileName, "w+a");
+    fputs(
+        "#include <stdio.h>\nstatic unsigned char stack[30000];int "
+        "main(){unsigned char*ptr=stack;",
         cFile);
 
-    FILE* bfFile = fopen(argv[2], "r");
-    char ch = 0;
+    FILE*   bfFile    = fopen(argv[2], "r");
+    char    ch        = 0;
     ssize_t loopDepth = 0;
     while (ch != EOF) {
         ch = fgetc(bfFile);
         switch (ch) {
-            case '>': fputs("ptr++;", cFile); break;
-            case '<': fputs("ptr--;", cFile); break;
-            case '+': fputs("(*ptr)++;", cFile); break;
-            case '-': fputs("(*ptr)--;", cFile); break;
-            case '.': fputs("putchar(*ptr);", cFile); break;
-            case ',': fputs("*ptr=getchar();", cFile); break;
-            case '[':
-                fputs("while(*ptr){", cFile);
-                loopDepth++;
-                break;
-            case ']':
-                fputs("}", cFile);
-                loopDepth--;
-                break;
+        case '>': fputs("ptr++;", cFile); break;
+        case '<': fputs("ptr--;", cFile); break;
+        case '+': fputs("(*ptr)++;", cFile); break;
+        case '-': fputs("(*ptr)--;", cFile); break;
+        case '.': fputs("putchar(*ptr);", cFile); break;
+        case ',': fputs("*ptr=getchar();", cFile); break;
+        case '[':
+            fputs("while(*ptr){", cFile);
+            loopDepth++;
+            break;
+        case ']':
+            fputs("}", cFile);
+            loopDepth--;
+            break;
         }
     }
 
@@ -55,8 +56,9 @@ int main(int argc, char** argv) {
     fclose(cFile);
 
     if (loopDepth != 0) {
-        puts("\e[0;31mError:\e[m The compiler found misplaced brackets. "
-             "Compilation terminated");
+        puts(
+            "\e[0;31mError:\e[m The compiler found misplaced brackets. "
+            "Compilation terminated");
         remove(cFileName);
         return 1;
     }
