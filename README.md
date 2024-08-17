@@ -1,5 +1,5 @@
 # bfc
-A Brainfuck compiler, made in about 2 days.
+A Brainfuck compiler, made in ~~about~~ way more than 2 days.
 
 # Building for dummies
 To build this compiler, run
