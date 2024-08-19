@@ -7,4 +7,5 @@ To build this compiler, run
 git clone https://github.com/milsiy/bfc
 cd bfc
 make
+./bfc
 ```
