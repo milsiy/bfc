@@ -2,22 +2,27 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/wait.h>
 #include <unistd.h>
 
 int main(int argc, char** argv) {
     if (argc == 1) {
         puts(
-            "To compile a Brainfuck file using BFC. \n[PATH TO BFC] [OUTPUT "
-            "NAME] [BRAINFUCK FILE]");
+            "To compile a Brainfuck file using BFC. \n[PATH TO BFC] [BRAINFUCK "
+            "FILE]");
         return 1;
-    } else if (argc != 3) {
-        puts("\e[0;31mError:\e[m Not enough or too many arguments.");
+    } else if (argc != 2) {
+        puts("\033[0;31mError:\033[m Not enough or too many arguments.");
         return 1;
     }
 
-    char* cFileName = malloc(strlen(argv[2]) + 3);
-    strcpy(cFileName, argv[2]);
+    char* cFileName = malloc(strlen(argv[1]) + 3);
+    strcpy(cFileName, argv[1]);
     strcat(cFileName, ".c");
+
+    char* outFileName = malloc(strlen(argv[1]) - 2);
+    strncpy(outFileName, argv[1], strlen(argv[1]) - 3);
+    outFileName[strlen(argv[1]) - 3] = 0;
 
     // NOTE: The translated C file could've been written without using the
     // standard libraries, but dealing with inputs is a pain in the ass if we're
@@ -29,14 +34,21 @@ int main(int argc, char** argv) {
         "main(){unsigned char*ptr=stack;",
         cFile);
 
-    FILE*   bfFile    = fopen(argv[2], "r");
+    FILE*   bfFile    = fopen(argv[1], "r");
     char    ch        = 0;
     ssize_t loopDepth = 0;
+    ssize_t ptrPos    = 0;
     while (ch != EOF) {
         ch = fgetc(bfFile);
         switch (ch) {
-        case '>': fputs("ptr++;", cFile); break;
-        case '<': fputs("ptr--;", cFile); break;
+        case '>':
+            fputs("ptr++;", cFile);
+            ptrPos++;
+            break;
+        case '<':
+            fputs("ptr--;", cFile);
+            ptrPos--;
+            break;
         case '+': fputs("(*ptr)++;", cFile); break;
         case '-': fputs("(*ptr)--;", cFile); break;
         case '.': fputs("putchar(*ptr);", cFile); break;
@@ -57,11 +69,22 @@ int main(int argc, char** argv) {
 
     if (loopDepth != 0) {
         puts(
-            "\e[0;31mError:\e[m The compiler found misplaced brackets. "
+            "\033[0;31mError:\033[m Incomplete brackets found.\nCompilation "
+            "terminated");
+        remove(cFileName);
+        return 1;
+    } else if (ptrPos < 0 || ptrPos >= 30000) {
+        puts(
+            "\033[0;31mError:\033[m Data pointer found to be out of bounds.\n"
             "Compilation terminated");
         remove(cFileName);
         return 1;
     }
 
-    execl("/usr/bin/gcc", "gcc", "-o", argv[1], cFileName, NULL);
+    pid_t runGCC = vfork();
+    if (runGCC == 0) {
+        execl("/usr/bin/gcc", "gcc", "-o", outFileName, cFileName, NULL);
+    }
+    wait(NULL);
+    remove(cFileName);
 }
