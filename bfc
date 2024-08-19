@@ -1,4 +1,0 @@
-#!/bin/bash
-./compile $1 $2
-cFileName="${2}.c"
-rm "${cFileName}"
