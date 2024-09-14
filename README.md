@@ -1,7 +1,7 @@
 # bfc
 A Brainfuck compiler, made in ~~about~~ way more than 2 days.
 
-# Requirements
+# Dependencies
 GCC, comes with every Linux machine to ever exist.
 
 # Building for dummies
