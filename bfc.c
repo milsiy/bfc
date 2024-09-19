@@ -81,7 +81,7 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    pid_t runGCC = vfork();
+    pid_t runGCC = fork();
     if (runGCC == 0) {
         execl("/usr/bin/gcc", "gcc", "-o", outFileName, cFileName, NULL);
     }
